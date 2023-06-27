@@ -3,6 +3,7 @@
 
 apt-get update
 apt-get install -y nginx
+sudo ufw allow 'Nginx HTTP'
 
 echo "server {
     listen 80;
