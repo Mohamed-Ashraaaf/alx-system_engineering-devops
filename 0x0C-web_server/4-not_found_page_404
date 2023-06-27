@@ -1,18 +1,26 @@
 #!/usr/bin/env bash
 # setting up a 404 error page
 
-if ! command -v nginx >/dev/null 2>&1; then
-    sudo apt-get update
-    sudo apt-get install -y nginx
-fi
+sudo apt update
+sudo apt install -y nginx
+sudo ufw allow 'Nginx HTTP'
 
-sudo sh -c 'echo "Ceci n\'est pas une page" > /var/www/html/404.html'
+echo "Ceci n'est pas une page" > 404.html
+sudo mv 404.html /var/www/html
+echo "server {
+	listen 80 default_server;
+        listen [::]:80 default_server;
+        root /var/www/html;
+        index index.html;
+        location /redirect_me {
+                return 301 https://www.youtube.com/watch?v=QH2-TGUlwu4;
+        }
+	
+	error_page 404 /404.html;
+	location = /404.html{
+	internal;
+	}
+}" > default
 
-sudo sh -c 'echo "error_page 404 /404.html;
-location = /404.html {
-    internal;
-}" > /etc/nginx/sites-available/custom-error'
-
-sudo ln -sf /etc/nginx/sites-available/custom-error /etc/nginx/sites-enabled/
-sudo rm -f /etc/nginx/sites-enabled/default
+sudo mv -f default /etc/nginx/sites-available/default
 sudo service nginx restart
