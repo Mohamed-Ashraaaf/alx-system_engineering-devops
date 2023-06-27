@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# Finding error and debugging it
+sudo service apache2 start
