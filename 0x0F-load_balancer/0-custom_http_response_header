@@ -4,6 +4,6 @@
 apt-get update
 apt-get install -y nginx
 
-sudo sed -i '/server_tokens off;/a \ \ add_header X-Served-By $hostname;' /etc/nginx/nginx.conf
+sudo vim -c "normal G" -c "normal o \ \ add_header X-Served-By \$hostname;" -c "wq" /etc/nginx/nginx.conf
 
 service nginx restart
