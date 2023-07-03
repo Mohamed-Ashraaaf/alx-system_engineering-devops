@@ -3,6 +3,7 @@
 
 sudo apt-get update
 sudo apt-get install -y haproxy
+
 sudo sed -i 's/ENABLED=0/ENABLED=1/' /etc/default/haproxy
 
 sudo tee /etc/haproxy/haproxy.cfg > /dev/null << EOF
@@ -14,8 +15,8 @@ frontend lb-frontend
 backend lb-backend
     mode http
     balance roundrobin
-    server web-01 [STUDENT_ID]-web-01:80 check
-    server web-02 [STUDENT_ID]-web-02:80 check
+    server web-01 34.224.2.128 check
+    server web-02 100.24.206.245 check
 EOF
 
-sudo service haproxy restart
+sudo systemctl restart haproxy
