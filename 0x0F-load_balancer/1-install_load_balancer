@@ -15,8 +15,9 @@ frontend lb-frontend
 backend lb-backend
     mode http
     balance roundrobin
-    server web-01 34.224.2.128 check
-    server web-02 100.24.206.245 check
+    option forwardfor
+    server 206861-web-01 34.224.2.128 check
+    server 206861-web-02 100.24.206.245 check
 EOF
 
 sudo systemctl restart haproxy
