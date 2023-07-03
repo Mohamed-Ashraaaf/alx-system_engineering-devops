@@ -17,4 +17,4 @@ backend web-backend
     server 206861-web-02 100.24.206.245 check
 " >> /etc/haproxy/haproxy.cfg
 
-sudo systemctl restart haproxy
+sudo service haproxy restart
