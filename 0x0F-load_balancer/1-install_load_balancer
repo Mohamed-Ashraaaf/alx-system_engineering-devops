@@ -4,17 +4,17 @@
 sudo apt-get update
 sudo apt-get install -y haproxy
 
-sudo tee /etc/haproxy/haproxy.cfg > /dev/null << EOF
-frontend lb-frontend
+printf %s "
+frontend proxynode
     bind *:80
     mode http
-    default_backend lb-backend
+    default_backend web-backend
 
-backend lb-backend
+backend web-backend
     balance roundrobin
     option forwardfor
     server 206861-web-01 34.224.2.128 check
     server 206861-web-02 100.24.206.245 check
-EOF
+" >> /etc/haproxy/haproxy.cfg
 
 sudo systemctl restart haproxy
