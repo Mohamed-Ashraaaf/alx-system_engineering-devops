@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# configure web-02 to be identical to web-01
+
+apt-get update
+apt-get install -y nginx
+
+CONFIG_FILE="/etc/nginx/nginx.conf"
+CUSTOM_HEADER="add_header X-Served-By \$hostname;"
+
+sed -i "s|# server_tokens off;|&\n\n    $CUSTOM_HEADER|g" $CONFIG_FILE
+
+service nginx restart
