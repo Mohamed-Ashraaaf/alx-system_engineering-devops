@@ -4,6 +4,12 @@
 sudo apt update
 sudo apt install -y nginx
 sudo ufw allow 'Nginx HTTP'
+
+CONFIG_FILE="/etc/nginx/nginx.conf"
+CUSTOM_HEADER="add_header X-Served-By \$hostname;"
+
+sudo sed -i '/server_tokens off;/a \ \ add_header X-Served-By $hostname;' /etc/nginx/nginx.conf
+
 echo "Hello World!" | sudo tee /var/www/html/index.html
 # OR
 # echo "Hello World!" > index.html
