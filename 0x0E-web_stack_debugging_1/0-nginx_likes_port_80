@@ -1,13 +1,6 @@
 #!/usr/bin/env bash
 # Bash script that configures a server listening to port 80
-
-apt-get update
-apt-get install -y net-tools
-
-systemctl status nginx
-
-netstat -tuln | grep ":80"
-
-nginx -t
-
-systemctl restart nginx
+sudo sed -i "s/ipv6only=on//" /etc/nginx/sites-available/default
+sudo rm -f /etc/nginx/sites-enabled/default
+sudo ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
+sudo service nginx restart
