@@ -32,12 +32,6 @@ defaults
         errorfile 502 /etc/haproxy/errors/502.http
         errorfile 503 /etc/haproxy/errors/503.http
         errorfile 504 /etc/haproxy/errors/504.http
-
-backend web-backend
-        balance roundrobin
-        option forwardfor
-        server 206861-web-01 34.224.2.128:80 check
-        server 206861-web-02 100.24.206.245:80 check
 frontend proxynode
         bind *:80
 	mode http
