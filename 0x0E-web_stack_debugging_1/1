@@ -1,4 +1,3 @@
- * Stopping nginx nginx
-   ...done.
- * Starting nginx nginx
+sudo: ufw: command not found
+ * Restarting nginx nginx
    ...done.
