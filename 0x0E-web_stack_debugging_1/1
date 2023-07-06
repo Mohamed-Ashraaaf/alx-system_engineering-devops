@@ -1,3 +1,2 @@
-sudo: ufw: command not found
  * Restarting nginx nginx
    ...done.
