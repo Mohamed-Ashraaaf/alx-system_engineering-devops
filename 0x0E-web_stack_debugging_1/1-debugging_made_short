@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
 # same as task 0 adhereing to new rules
-service nginx stop
-rm -rf /var/run/nginx.pid
-service nginx start
+sed -i 's/8080/80/g' /etc/nginx/sites-enabled/default
+pkill -1 nginx
