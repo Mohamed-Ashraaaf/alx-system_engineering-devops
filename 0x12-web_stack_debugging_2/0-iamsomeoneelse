@@ -1,3 +1,8 @@
 #!/usr/bin/env bash
 # Bash script run the whoami under the user passed
-sudo -u "$1" 'whoami'
+if [ $# -ne 1 ]; then
+    echo "Usage: $0 USERNAME"
+    exit 1
+fi
+
+sudo -u "$1" whoami
