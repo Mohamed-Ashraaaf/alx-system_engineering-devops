@@ -5,6 +5,4 @@ if [ -z "$1" ]; then
     exit 1
 fi
 
-user_home=$(getent passwd "$1" | cut -d: -f6)
-
-su - "$1" -c 'HOME='"$user_home"' whoami'
+sudo -u "$1" whoami
