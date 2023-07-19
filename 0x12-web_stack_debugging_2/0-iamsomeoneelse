@@ -1,8 +1,3 @@
 #!/usr/bin/env bash
-# Bash script run the whoami under the user passed
-if [ -z "$1" ]; then
-    echo "Usage: $0 <username>"
-    exit 1
-fi
-
+# Bash script run the whoami under the user passed as argument
 sudo -u "$1" whoami
