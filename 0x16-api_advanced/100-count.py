@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 """
-Another recursive fucntion
+Another recursive function
 """
 
 import requests
@@ -30,8 +30,7 @@ def count_words(subreddit, word_list, word_count=None, after=None):
                 for word in word_list:
                     word = word.lower()
                     if title and title.count(word):
-                        word_count[word] = word_count.get(
-                                word, 0) + title.count(word)
+                        word_count[word] = word_count.get(word, 0) + title.count(word)
             after = response.json().get('data', {}).get('after')
             if after:
                 return count_words(subreddit, word_list, word_count, after)
