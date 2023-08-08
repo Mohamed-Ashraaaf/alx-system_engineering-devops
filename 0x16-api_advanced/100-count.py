@@ -1,24 +1,22 @@
 #!/usr/bin/python3
 """
-Another recursive function
+100-count
 """
 
 import requests
 
 
-def count_words(subreddit, word_list, after=None, word_count={}):
-    """Queries the Reddit API, parses the title of all hot articles,
+def count_words(subreddit, word_list, word_count=None, after=None):
+    """Recursivel queries the Reddit API, parses the title of all hot articles,
     and prints a sorted count of given keywords.
     """
+    if word_count is None:
+        word_count = {}
     url = "https://www.reddit.com/r/{}/hot.json".format(subreddit)
     headers = {'User-Agent': 'custom-user-agent'}
     params = {'after': after}
     response = requests.get(
-        url,
-        headers=headers,
-        params=params,
-        allow_redirects=False
-    )
+            url, headers=headers, params=params, allow_redirects=False)
 
     if response.status_code == 200:
         data = response.json().get('data', {}).get('children', [])
@@ -28,18 +26,14 @@ def count_words(subreddit, word_list, after=None, word_count={}):
                 for word in word_list:
                     word = word.lower()
                     if title and title.count(word):
-                        if word in word_count:
-                            word_count[word] += title.count(word)
-                        else:
-                            word_count[word] = title.count(word)
+                        word_count[word] = word_count.get(
+                                word, 0) + title.count(word)
             after = response.json().get('data', {}).get('after')
             if after:
-                return count_words(subreddit, word_list, after, word_count)
+                return count_words(subreddit, word_list, word_count, after)
             else:
                 sorted_word_count = sorted(
-                    word_count.items(),
-                    key=lambda x: (-x[1], x[0])
-                )
+                        word_count.items(), key=lambda x: (-x[1], x[0]))
                 for word, count in sorted_word_count:
                     print("{}: {}".format(word, count))
         else:
