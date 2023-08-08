@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 """
-Recurive function returning list
+Recursive function returning list
 """
 
 import requests
@@ -28,7 +28,7 @@ def recurse(subreddit, hot_list=[], after=None):
             )
             after = response.json().get('data', {}).get('after')
             if after:
-                recurse(subreddit, hot_list, after)
+                return recurse(subreddit, hot_list, after)
         return hot_list
     else:
         return None
