@@ -1,28 +1,26 @@
 #!/usr/bin/python3
 """
-Returns N# of subs
+Returns the N# of subs for a given subreddit
 """
+
 import requests
 
-def number_of_subscribers(subreddit):
-    """Returns the number of subscribers for a given subreddit"""
-    url = "https://www.reddit.com/r/{}/about.json".format(subreddit)
-    headers = {"User-Agent": "my-app/0.0.1"}  # Set a custom User-Agent
-    
-    response = requests.get(url, headers=headers)
-    
-    if response.status_code == 200:
-        data = response.json()
-        subscribers = data["data"]["subscribers"]
-        return subscribers
-    else:
-        return 0
 
-if __name__ == "__main__":
+def number_of_subscribers(subreddit):
+    """returns the number of subscribers for a given subreddit."""
+    url = "https://www.reddit.com/r/{}/about.json".format(subreddit)
+    headers = {'User-Agent': 'custom-user-agent'}
+    response = requests.get(url, headers=headers, allow_redirects=False)
+
+    if response.status_code == 200:
+        return response.json().get('data', {}).get('subscribers', 0)
+    return 0
+
+
+if __name__ == '__main__':
     import sys
-    
+
     if len(sys.argv) < 2:
         print("Please pass an argument for the subreddit to search.")
     else:
-        subreddit = sys.argv[1]
-        print("{:d}".format(number_of_subscribers(subreddit)))
+        print("{:d}".format(number_of_subscribers(sys.argv[1])))
