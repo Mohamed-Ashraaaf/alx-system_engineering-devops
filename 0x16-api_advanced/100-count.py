@@ -1,12 +1,11 @@
 #!/usr/bin/python3
 """
-Another recursive function
+Module for querying the Reddit API and counting keywords in titles.
 """
-
 import requests
 
 
-def count_words(subreddit, word_list, after=None, count_dict={}):
+def count_words(subreddit, word_list, after=None, count_dict=None):
     """
     Queries the Reddit API and counts the occurrences of keywords in titles.
 
@@ -19,14 +18,13 @@ def count_words(subreddit, word_list, after=None, count_dict={}):
     Returns:
         None
     """
-    if count_dict == {}:
-        word_list = [word.lower() for word in word_list]
+    if count_dict is None:
+        count_dict = {word.lower(): 0 for word in word_list}
 
     headers = {
-        'User-Agent': 'Mozilla/5.0 Windows NT 10.0; Win64; x64)'
-        'AppleWebKit/537.36 (KHTML, like Gecko)'
-        'Chrome/97.0.4692.71'
-        'Safari/537.36'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+                      'AppleWebKit/537.36 (KHTML, like Gecko) '
+                      'Chrome/97.0.4692.71 Safari/537.36'
     }
     params = {
         'sort': 'hot',
@@ -46,7 +44,7 @@ def count_words(subreddit, word_list, after=None, count_dict={}):
             title = child['data']['title'].lower().split()
 
             for word in word_list:
-                count_dict[word] = count_dict.get(word, 0) + title.count(word)
+                count_dict[word] += title.count(word)
 
         after = data.get('after')
         if after:
