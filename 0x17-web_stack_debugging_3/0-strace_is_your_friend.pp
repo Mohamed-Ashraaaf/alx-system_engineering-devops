@@ -7,15 +7,15 @@ exec { 'strace_apache':
 }
 
 exec { 'fix_apache_issue':
-  command     => 'fix_command_here',
+  command     => '/usr/sbin/service apache2 restart',
   path        => ['/usr/bin', '/bin'],
   refreshonly => true,
   subscribe   => Exec['strace_apache'],
-  onlyif      => "test -f /tmp/strace_output.txt",
+  onlyif      => 'test -s /tmp/strace_output.txt',
 }
 
 service { 'apache2':
-  ensure    => 'running',
-  enable    => true,
+  ensure => 'running',
+  enable => true,
   subscribe => Exec['fix_apache_issue'],
 }
