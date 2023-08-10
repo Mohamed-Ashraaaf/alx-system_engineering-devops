@@ -3,19 +3,18 @@
 Count Words Module
 """
 import requests
+import re
 import sys
 
 
-def count_words(subreddit, word_list, after=None, word_count=None):
+def count_words(subreddit, word_list, after=None, counts=None):
     if after is None:
         after = ""
-    if word_count is None:
-        word_count = {}
+    if counts is None:
+        counts = {}
 
-    url =
-    "https://www.reddit.com/r/{}/hot.json?after={}".format(subreddit, after)
-    headers =
-    {"User-Agent": "python:com.example.myredditapp:v1.0.0 (by /u/username)"}
+    url = f"https://www.reddit.com/r/{subreddit}/hot.json?after={after}"
+    headers = {"User-Agent": "reddit-api-script"}
     response = requests.get(url, headers=headers, allow_redirects=False)
 
     if response.status_code != 200:
@@ -26,30 +25,27 @@ def count_words(subreddit, word_list, after=None, word_count=None):
 
     for post in children:
         title = post["data"]["title"].lower()
-        words = title.split()
-        for word in word_list:
-            if word.lower() in words:
-                if word in word_count:
-                    word_count[word] += 1
-                else:
-                    word_count[word] = 1
+        words = re.findall(r'\b\w+\b', title)
+        for word in words:
+            if word in word_list:
+                counts[word] = counts.get(word, 0) + 1
 
     next_page = data["after"]
     if next_page is not None:
         count_words(
-                subreddit, word_list, after=next_page, word_count=word_count)
+                subreddit, word_list, after=next_page, counts=counts)
     else:
-        sorted_words = sorted(
-                word_count.items(), key=lambda x: (-x[1], x[0]))
-        for word, count in sorted_words:
-            print("{}: {}".format(word, count))
+        sorted_counts = sorted(
+                counts.items(), key=lambda item: (-item[1], item[0]))
+        for word, count in sorted_counts:
+            print(f"{word}: {count}")
 
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:
-        print("Usage: {} <subreddit> <list of keywords>".format(sys.argv[0]))
-        print("Ex: {} programmin 'python java javascript'".format(sys.argv[0]))
+        print(f"Usage: {sys.argv[0]} <subreddit> <list of keywords>")
+        print(f"Ex: {sys.argv[0]} programmin 'python java javascript'")
     else:
         subreddit = sys.argv[1]
-        word_list = sys.argv[2].split()
+        word_list = sys.argv[2].lower().split()
         count_words(subreddit, word_list)
