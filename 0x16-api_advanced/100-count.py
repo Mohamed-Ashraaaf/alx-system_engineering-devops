@@ -3,7 +3,7 @@
 Function to count words in all hot posts of a given Reddit subreddit.
 """
 import requests
-
+import sys
 
 def count_words(subreddit, word_list, after=None, instances=None):
     if instances is None:
@@ -47,7 +47,6 @@ def count_words(subreddit, word_list, after=None, instances=None):
 
 
 if __name__ == "__main__":
-    import sys
 
     if len(sys.argv) != 3:
         print(f"Usage: {sys.argv[0]} <subreddit> <list of keywords>")
