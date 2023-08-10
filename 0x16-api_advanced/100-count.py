@@ -1,93 +1,58 @@
 #!/usr/bin/python3
-"""A module containing functions for working with the Reddit API.
+"""
+Function to count words in all hot posts of a given Reddit subreddit.
 """
 import requests
 
 
-def sort_histogram(histogram={}):
-    """Sorts and prints the given histogram.
-    """
-    histogram = list(filter(lambda kv: kv[1], histogram))
-    histogram_dict = {}
-    for item in histogram:
-        if item[0] in histogram_dict:
-            histogram_dict[item[0]] += item[1]
-        else:
-            histogram_dict[item[0]] = item[1]
-    histogram = list(histogram_dict.items())
-    histogram.sort(
-        key=lambda kv: kv[0],
-        reverse=False
-    )
-    histogram.sort(
-        key=lambda kv: kv[1],
-        reverse=True
-    )
-    res_str = '\n'.join(list(map(
-        lambda kv: '{}: {}'.format(kv[0], kv[1]),
-        histogram
-    )))
-    if res_str:
-        print(res_str)
+def count_words(subreddit, word_list, after=None, instances=None):
+    if instances is None:
+        instances = {word: 0 for word in word_list}
 
-
-def count_words(subreddit, word_list, histogram=None, n=0, after=None):
-    '''Counts the number of times each word in a given wordlist
-    occurs in a given subreddit.
-    '''
-    if histogram is None:
-        histogram = []
-    api_headers = {
-        'Accept': 'application/json',
-        'User-Agent': 'custom-user-agent'
-    }
-    sort = 'hot'
-    limit = 30
-    res = requests.get(
-        '{}/r/{}/.json?sort={}&limit={}&count={}&after={}'.format(
-            'https://www.reddit.com',
-            subreddit,
-            sort,
-            limit,
-            n,
-            after if after else ''
-        ),
-        headers=api_headers,
-        allow_redirects=False
-    )
-    if not histogram:
-        word_list = list(map(lambda word: word.lower(), word_list))
-        histogram = list(map(lambda word: (word, 0), word_list))
-    if res.status_code == 200:
-        data = res.json().get('data', {})
-        posts = data.get('children', [])
-        titles = list(map(lambda post: post['data']['title'], posts))
-        histogram = list(map(
-            lambda kv: (kv[0], kv[1] + sum(list(map(
-                lambda txt: txt.lower().split().count(kv[0]),
-                titles
-            )))),
-            histogram
-        ))
-        if len(posts) >= limit and data.get('after'):
-            count_words(
-                subreddit,
-                word_list,
-                histogram,
-                n + len(posts),
-                data.get('after')
-            )
-        else:
-            sort_histogram(histogram)
+    if after is None:
+        url = f"https://www.reddit.com/r/{subreddit}/hot.json"
     else:
+        url = f"https://www.reddit.com/r/{subreddit}/hot.json?after={after}"
+
+    headers = {
+        "User-Agent": "linux:0x16.api.advanced:v1.0.0 (by /u/bdov_)"
+    }
+
+    response = requests.get(url, headers=headers, allow_redirects=False)
+
+    if response.status_code == 404:
+        print()
         return
 
+    try:
+        data = response.json().get("data")
+        after = data.get("after")
 
-if __name__ == '__main__':
+        for post in data.get("children"):
+            title = post.get("data").get("title").lower().split()
+            for word in word_list:
+                instances[word] += title.count(word.lower())
+
+        if after is None:
+            sorted_instances = sorted(
+                    instances.items(), key=lambda x: (-x[1], x[0]))
+            for word, count in sorted_instances:
+                if count > 0:
+                    print(f"{word}: {count}")
+        else:
+            count_words(subreddit, word_list, after, instances)
+
+    except Exception:
+        print()
+
+
+if __name__ == "__main__":
     import sys
 
-    if len(sys.argv) < 3:
-        print("Usage: {} <subreddit> <list of keywords>".format(sys.argv[0]))
-        print("Ex: {} programmin 'python java javascript'".format(sys.argv[0]))
+    if len(sys.argv) != 3:
+        print(f"Usage: {sys.argv[0]} <subreddit> <list of keywords>")
+        print(f"Ex: {sys.argv[0]} programming 'python java javascript'")
     else:
-        count_words(sys.argv[1], [x for x in sys.argv[2].split()])
+        subreddit = sys.argv[1]
+        word_list = sys.argv[2].split()
+        count_words(subreddit, word_list)
