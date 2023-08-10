@@ -2,57 +2,59 @@
 """
 Function to count words in all hot posts of a given Reddit subreddit.
 """
-import sys
 import requests
 
 
-def count_words(subreddit, word_list, after=None, instances=None):
+def count_words(subreddit, word_list, instances=None, after=None, count=0):
+    """
+    Prints counts of given words found in hot posts of a given subreddit.
+
+    Args:
+        subreddit (str): The subreddit to search.
+        word_list (list): The list of words to search for in post titles.
+        instances (dict): Key/value pairs of words/counts.
+        after (str): The parameter for the next page of the API results.
+        count (int): The parameter of results matched thus far.
+    """
     if instances is None:
-        instances = {word: 0 for word in word_list}
+        instances = {}
 
-    if after is None:
-        url = f"https://www.reddit.com/r/{subreddit}/hot.json"
-    else:
-        url = f"https://www.reddit.com/r/{subreddit}/hot.json?after={after}"
-
-    headers = {
-        "User-Agent": "linux:0x16.api.advanced:v1.0.0 (by /u/bdov_)"
-    }
-
-    response = requests.get(url, headers=headers, allow_redirects=False)
-
-    if response.status_code == 404:
-        print()
-        return
+    url = f"https://www.reddit.com/r/{subreddit}/hot/.json"
+    headers = {"User-Agent": "linux:0x16.api.advanced:v1.0.0 (by /u/bdov_)"}
+    params = {"after": after, "count": count, "limit": 100}
+    response = requests.get(
+            url, headers=headers, params=params, allow_redirects=False)
 
     try:
-        data = response.json().get("data")
-        after = data.get("after")
-
-        for post in data.get("children"):
-            title = post.get("data").get("title").lower().split()
-            for word in word_list:
-                instances[word] += title.count(word.lower())
-
-        if after is None:
-            sorted_instances = sorted(
-                    instances.items(), key=lambda x: (-x[1], x[0]))
-            for word, count in sorted_instances:
-                if count > 0:
-                    print(f"{word}: {count}")
-        else:
-            count_words(subreddit, word_list, after, instances)
-
+        results = response.json()["data"]
+        if response.status_code == 404:
+            raise Exception
     except Exception:
-        print()
+        print("")
+        return
+
+    after = results.get("after")
+    count += results.get("dist")
+
+    for c in results.get("children"):
+        title = c.get("data").get("title").lower().split()
+        for word in word_list:
+            if word.lower() in title:
+                times = len([t for t in title if t == word.lower()])
+                instances[word] = instances.get(word, 0) + times
+
+    if after is None:
+        if len(instances) == 0:
+            print("")
+            return
+        instances = sorted(
+                instances.items(), key=lambda kv: (-kv[1], kv[0]))
+        [print("{}: {}".format(k, v)) for k, v in instances]
+    else:
+        count_words(subreddit, word_list, instances, after, count)
 
 
 if __name__ == "__main__":
-
-    if len(sys.argv) != 3:
-        print(f"Usage: {sys.argv[0]} <subreddit> <list of keywords>")
-        print(f"Ex: {sys.argv[0]} programming 'python java javascript'")
-    else:
-        subreddit = sys.argv[1]
-        word_list = sys.argv[2].split()
-        count_words(subreddit, word_list)
+    subreddit = sys.argv[1]
+    word_list = sys.argv[2].lower().split()
+    count_words(subreddit, word_list)
