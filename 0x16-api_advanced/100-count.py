@@ -6,46 +6,33 @@
 import requests
 
 
-def count_words(subreddit, word_list, after=None, word_count={}):
-    """Recursively queries the Reddit API, parse the title of all hot articles,
-    and prints a sorted count of given keywords.
-    """
-    url = "https://www.reddit.com/r/{}/hot.json".format(subreddit)
-    headers = {'User-Agent': 'custom-user-agent'}
-    params = {'after': after}
-    response = requests.get(
-        url,
-        headers=headers,
-        params=params,
-        allow_redirects=False
-    )
+def count_words(subreddit, word_list, word_count={}):
+    """Queries the Reddit API, parse titles, prints keyword counts."""
+    url = 'https://www.reddit.com/r/{}/hot.json'.format(subreddit)
+    headers = {'User-Agent': 'My User Agent'}
+    response = requests.get(url, headers=headers, allow_redirects=False)
 
     if response.status_code == 200:
-        data = response.json().get('data', {}).get('children', [])
-        if data:
-            for post in data:
-                title = post.get('data', {}).get('title', '').lower()
-                for word in word_list:
-                    word = word.lower()
-                    if title and title.count(word):
-                        if word in word_count:
-                            word_count[word] += title.count(word)
-                        else:
-                            word_count[word] = title.count(word)
-            after = response.json().get('data', {}).get('after')
-            if after:
-                return count_words(subreddit, word_list, after, word_count)
-            else:
-                sorted_word_count = sorted(
-                    word_count.items(),
-                    key=lambda x: (-x[1], x[0])
-                )
-                for word, count in sorted_word_count:
-                    print("{}: {}".format(word, count))
+        data = response.json()['data']
+        children = data['children']
+        for child in children:
+            title = child['data']['title']
+            words = [word.lower() for word in title.split()]
+            for word in word_list:
+                if word.lower() in words:
+                    if word in word_count:
+                        word_count[word] += 1
+                    else:
+                        word_count[word] = 1
+        if data['after'] is not None:
+            return count_words(subreddit, word_list, word_count)
         else:
-            return None
+            sorted_words = sorted(
+                    word_count.items(), key=lambda x: (-x[1], x[0]))
+            for word, count in sorted_words:
+                print("{}: {}".format(word, count))
     else:
-        return None
+        return
 
 
 if __name__ == '__main__':
@@ -55,4 +42,6 @@ if __name__ == '__main__':
         print("Usage: {} <subreddit> <list of keywords>".format(sys.argv[0]))
         print("Ex: {} programmin 'python java javascript'".format(sys.argv[0]))
     else:
-        count_words(sys.argv[1], [x for x in sys.argv[2].split()])
+        subreddit = sys.argv[1]
+        word_list = sys.argv[2].split()
+        count_words(subreddit, word_list)
