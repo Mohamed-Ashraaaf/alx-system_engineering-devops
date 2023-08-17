@@ -1,4 +1,10 @@
 #!/usr/bin/env bash
 
 # Get Gunicorn process IDs
-ps aux | grep gunicorn | awk '{ print $2 }' | xargs kill -HUP
+MASTER_PID=$(pgrep -f "gunicorn.*:app")
+
+kill -HUP $MASTER_PID
+
+while pgrep -f "gunicorn.*:app" | grep -q -E "$MASTER_PID|$"; do
+    sleep 1
+done
