@@ -14,11 +14,7 @@ server {
         proxy_pass http://127.0.0.1:5001/number_odd_or_even/$1;
     }
 
-    location /api/ {
-        proxy_pass http://0.0.0.0:5002/;
-        rewrite ^/api(/.*)$ $1 break;
-    }
-    location / {
-        try_files $uri $uri/ =404;
+    location /api {
+        proxy_pass http://127.0.0.1:5002/api;
     }
 }
