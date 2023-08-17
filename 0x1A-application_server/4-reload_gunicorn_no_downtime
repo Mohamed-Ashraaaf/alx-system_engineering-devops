@@ -1,16 +1,4 @@
 #!/usr/bin/env bash
 
 # Get Gunicorn process IDs
-PGREP=$(pgrep "gunicorn")
-
-for PID in $PGREP; do
-    echo "Reloading worker $PID"
-    kill -HUP $PID
-done
-
-echo "Waiting for new workers to start"
-while [ $(pgrep "gunicorn" | wc -l) -lt $PGREP ]; do
-    sleep 1
-done
-
-echo "Gunicorn workers reloaded successfully"
+systemctl status gunicorn | grep -oE 'Main PID: [0-9]+' | cut -d ' ' -f3 | xargs kill -HUP
